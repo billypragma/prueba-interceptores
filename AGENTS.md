@@ -11,7 +11,7 @@ el asistente debe materializar la estructura del stack del briefing, sin resolve
 Este bloque manda sobre los archivos adjuntos. El stack y el rol salen de AQUÍ, no de un topic genérico ni de markdown placeholder.
 
 ### Perfil
-Chapter Frontend, Especialidad eCommerce, Tecnología Vtex, Advanced
+Chapter Frontend, Especialidad eCommerce, Tecnología Vtex - react/javascript, Advanced
 
 ### Brecha de conocimiento
 Aplica estrategias de manejo de errores y excepciones, reconociendo las familias de los códigos de respuestas HTTP (100, 200, 300, 400, 500)

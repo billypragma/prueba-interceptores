@@ -1,53 +1,212 @@
-# Implementación de manejo de errores en un sistema de eCommerce
+# 🎯 Implementación de Manejo de Errores en eCommerce
 
-Tu equipo está desarrollando una plataforma de eCommerce avanzada. Necesitas implementar un sistema robusto para manejar errores y excepciones, reconociendo y actuando sobre las diferentes familias de códigos de respuesta HTTP. Esto es crucial para proporcionar una experiencia de usuario fluida y confiable.
+## ¿QUÉ ES ESTE PROYECTO?
 
-## Informacion General
+Un reto práctico para que **TÚ** implementes una estrategia robusta de manejo de errores en React mientras consumes una API Express ya completamente funcional.
+
+### La Premisa
+
+- **Backend:** ✅ Completado, funcional, listening en puerto 3000
+- **Frontend:** 🔨 Estructura lista, lógica vacía (TIENES QUE LLENARLA)
+- **Tu tarea:** Implementar el manejo de errores HTTP en componentes React
+
+**No** es un proyecto donde copies código terminado. Es un proyecto donde aprendes/practicas haciendo.
+
+## Información General
 
 | Campo | Valor |
 |-------|-------|
-| **Tema** | Estrategia de errores |
+| **Tema** | Estrategia de errores HTTP en Frontend (React) |
 | **Nivel** | advanced-l2 |
-| **Tipo** | practical |
-| **Tiempo estimado** | 4-5 horas |
+| **Tipo** | Práctico - Aprendizaje por hacer |
+| **Tiempo estimado** | 4-8 horas (implémentalo a tu ritmo) |
+| **Requisitos** | Node.js 16+, npm, React 18.2+, concepto de componentes |
+| **Objetivo** | Cerrar brecha en manejo de errores | HTTP en React
 
-## Fases del Reto
+## Fases del Reto - TU CAMINO
 
-### Fase 0: Configuración del Proyecto
+### Fase 0: Inicio Rápido (30 segundos)
 
-**Objetivo:** Obtener el proyecto base funcional enviando el Código Base a un asistente de IA, que lo analizará, corregirá errores y generará un ZIP listo para usar.
+**Objetivo:** Verificar que todo funciona y entender la estructura
 
-**Tiempo estimado:** 15-30 minutos
+**Pasos:**
 
-**Instrucciones:**
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+# → Escucha en http://localhost:3000
 
-- Asegúrate de tener instalado para ejecutar el proyecto: Un IDE o editor de código.
-- Copia todo el contenido del campo **Código Base** de este reto — incluyendo el texto de instrucciones que aparece al inicio.
-- Abre un asistente de IA (Claude en claude.ai, ChatGPT o Gemini — se recomienda Claude), pega el contenido copiado en el chat y envíalo.
-- El asistente analizará los archivos, corregirá errores y generará un archivo ZIP descargable. Descárgalo y extráelo en la carpeta donde quieras trabajar.
-- Verifica que el proyecto arranca sin errores.
+# Terminal 2 - Frontend
+cd frontend
+npm run dev
+# → Corre en http://localhost:5173
+```
 
-**Entregable:** El proyecto compila/arranca sin errores.
+**Verificación:** 
+- Backend inicia sin errores
+- Frontend abre en http://localhost:5173 
+- Ves un mensaje diciendo "Tu reto..."
 
-<details>
-<summary>Pistas de conocimiento</summary>
+---
 
-- Copia el Código Base completo incluyendo el texto de instrucciones al inicio — esas instrucciones le indican al asistente exactamente qué hacer con los archivos.
-- Si el asistente no genera el ZIP automáticamente al terminar el análisis, escríbele: "genera el ZIP ahora".
-- Si el proyecto tiene errores al arrancar, comparte el mensaje de error con el mismo asistente para que lo corrija.
+### Fase 1: Entender QUÉ Necesitas Hacer (30 minutos)
 
-</details>
+**EMPIEZA AQUÍ:** Lee el archivo `GUIA_IMPLEMENTACION.md`
 
-### Fase 1: Identificación de errores comunes
+Este archivo explica:
+- ✅ Qué componentes necesitan código
+- ✅ Qué errores necesitas manejar
+- ✅ Qué datos espera cada componente
+- ✅ Checklist de tareas
+- ✅ Orden recomendado de implementación
 
-**Objetivo:** Comprender y listar los errores comunes que pueden ocurrir en un sistema de eCommerce.
+**NO te dice HOW (cómo)** — TÚ descubrirás eso implementando.
 
-**Tiempo estimado:** 1 hora
+---
 
-**Instrucciones:**
+### Fase 2: Implementación Step-by-Step (4-8 horas)
 
-- Investiga y enumera los errores comunes que pueden ocurrir en un sistema de eCommerce.
-- Clasifica estos errores en las familias de códigos de respuesta HTTP.
+Sigue este orden recomendado:
+
+#### a) **apiClient.js** (1-2 horas)
+   - [ ] Validar respuestas `response.ok`
+   - [ ] Pasar statusCode al error lanzado
+   - [ ] Manejar errors de conexión
+   - [ ] Tester: Llamadas a /auth/login deben lanzar 401 en credenciales malas
+
+#### b) **ErrorDisplay.jsx** (1-1.5 horas)
+   - [ ] Recibir error object desde props
+   - [ ] Mostrar statusCode, message
+   - [ ] UI diferente por tipo (4xx naranja, 5xx rojo)
+   - [ ] Botón de cerrar
+   - [ ] Test: Mostrar error 401, 404, 500
+
+#### c) **SuccessDisplay.jsx** (1 hora)
+   - [ ] Recibir datos exitosos desde props
+   - [ ] Mostrar statusCode 200, mensaje
+   - [ ] Mostrar datos adicionales (expandible es bonus)
+   - [ ] Botón de cerrar
+   - [ ] Test: Mostrar respuesta exitosa
+
+#### d) **LoginSection.jsx** (1.5 horas)
+   - [ ] Estados: loading, error, success, user
+   - [ ] Implementar handleLogin con try/catch
+   - [ ] Mostrar ErrorDisplay si error
+   - [ ] Mostrar SuccessDisplay si éxito
+   - [ ] Guardar token en localStorage
+   - [ ] Test: 
+     - Credenciales correctas → entra
+     - Credenciales inválidas → error 401
+
+#### e) **ProductsSection.jsx** (1.5 horas)
+   - [ ] Estados para: products, error, loading, success
+   - [ ] Implementar handleGetProducts()
+   - [ ] Implementar handleGetProduct(id)
+   - [ ] Implementar handleCheckStock(id)
+   - [ ] Mostrar resultados en tabla/lista
+   - [ ] Mostrar ErrorDisplay en 404
+   - [ ] Test:
+     - GET /products → lista completa
+     - GET /products/1 → producto individual
+     - GET /products/999 → error 404
+
+#### f) **PaymentSection.jsx** (1.5 horas)
+   - [ ] Estados: error, loading, success, cardData
+   - [ ] Obtener token desde localStorage
+   - [ ] Implementar handleValidateCard()
+   - [ ] Implementar handleProcessPayment()
+   - [ ] Manejar 401 (sin token), 402 (pago rechazado)
+   - [ ] Test:
+     - Sin token → error 401
+     - Monto > 5000 → error 402
+     - Datos válidos → éxito
+
+---
+
+### Fase 3: Pruebas Exhaustivas (1-2 horas)
+
+- [ ] Prueba cada componente
+- [ ] Genera cada tipo de error (401, 402, 404, 500)
+- [ ] Verifica F12 → Network tab
+- [ ] Verifica Console no tiene errores sin manejar
+- [ ] Usa GUIA_PRUEBAS_COMPLETA.md para casos específicos
+
+---
+
+### Fase 4: Mejoras (BONUS - 2+ horas)
+
+- [ ] Auto-cerrar mensajes después de 3-5 segundos
+- [ ] Agregar validaciones en frontend antes de enviar
+- [ ] Mejorar CSS/diseño
+- [ ] Agregar iconos
+- [ ] Animaciones en mensajes
+- [ ] Manejo de estados "offline"
+
+---
+
+## Estructura de Ficheros
+
+```
+prueba-interceptores/
+├── BIENVENIDA.txt                    ← Lee primero
+├── GUIA_IMPLEMENTACION.md            ← Empieza aquí
+├── MAPA_ERRORES_HTTP.md              ← Referencia
+├── GUIA_PRUEBAS_COMPLETA.md          ← Casos de test
+│
+├── backend/                          ✅ SIN TOCAR (está terminado)
+│   ├── package.json
+│   ├── server.js
+│   └── src/
+│       ├── middleware/
+│       │   └── errorHandler.js
+│       ├── routes/
+│       │   ├── auth.js
+│       │   ├── products.js
+│       │   └── payments.js
+│       └── exceptions/
+│           ├── AuthenticationException.js
+│           ├── PaymentException.js
+│           └── ProductNotFoundException.js
+│
+└── frontend/                         🔨 TU TRABAJO AQUÍ
+    ├── package.json
+    ├── vite.config.js
+    ├── src/
+    │   ├── App.jsx                   (ya lista)
+    │   ├── index.css                 (ya lista, puedes mejorar)
+    │   ├── services/
+    │   │   └── apiClient.js          🔨 FALTA implementar error validation
+    │   └── components/
+    │       ├── ErrorDisplay.jsx      🔨 CREAR desde cero
+    │       ├── SuccessDisplay.jsx    🔨 CREAR desde cero
+    │       ├── LoginSection.jsx      🔨 COMPLETAR
+    │       ├── ProductsSection.jsx   🔨 COMPLETAR
+    │       ├── PaymentSection.jsx    🔨 COMPLETAR
+    │       └── HealthCheckSection.jsx🔨 COMPLETAR
+```
+
+---
+
+## API Backend (Para Referencia)
+
+### Autenticación
+- `POST /api/auth/login` - Body: `{username, password}`
+- Errores: 401 Unauthorized (credenciales inválidas)
+
+### Productos
+- `GET /api/products` - Obtener todos
+- `GET /api/products/:id` - Obtener uno
+- `GET /api/products/:id/check-stock` - Verificar stock
+- Errores: 404 Not Found (ID no existe)
+
+### Pagos
+- `POST /api/payments/validate` - Body: `{cardNumber, expiryDate, cvv}`
+- `POST /api/payments/process` - Body: `{amount, cardNumber, token}`
+  - Header: `Authorization: Bearer <token>`
+- Errores: 401 Unauthorized (sin token), 402 Payment Required (pago fallido)
+
+**Ver GUIA_PRUEBAS_COMPLETA.md para todos los detalles y endpoints.**
 
 **Entregable:** Lista de errores comunes y su clasificación en las familias de códigos de respuesta HTTP.
 
