@@ -15,13 +15,14 @@ function App() {
         </p>
       </div>
 
-      <div style={{ marginBottom: '2em' }}>
-        <nav style={{ display: 'flex', gap: '1em', borderBottom: '1px solid #444', paddingBottom: '1em' }}>
+      <div style={{ marginBottom: '2em'}}>
+        <nav style={{ display: 'flex', gap: '1em', borderBottom: '1px solid #444', color: '#fff', paddingBottom: '1em' }}>
           <button 
             onClick={() => setTab('home')}
             style={{ 
               background: tab === 'home' ? '#646cff' : 'transparent',
-              border: tab === 'home' ? '1px solid #646cff' : 'none'
+              border: tab === 'home' ? '1px solid #646cff' : 'none',
+              color: '#fff'
             }}
           >
             Inicio
@@ -30,7 +31,9 @@ function App() {
             onClick={() => setTab('auth')}
             style={{ 
               background: tab === 'auth' ? '#646cff' : 'transparent',
-              border: tab === 'auth' ? '1px solid #646cff' : 'none'
+              border: tab === 'auth' ? '1px solid #646cff' : 'none',
+              color: '#fff'
+
             }}
           >
             Autenticación
@@ -39,7 +42,9 @@ function App() {
             onClick={() => setTab('products')}
             style={{ 
               background: tab === 'products' ? '#646cff' : 'transparent',
-              border: tab === 'products' ? '1px solid #646cff' : 'none'
+              border: tab === 'products' ? '1px solid #646cff' : 'none',
+              color: '#fff'
+           
             }}
           >
             Productos
@@ -48,7 +53,8 @@ function App() {
             onClick={() => setTab('payments')}
             style={{ 
               background: tab === 'payments' ? '#646cff' : 'transparent',
-              border: tab === 'payments' ? '1px solid #646cff' : 'none'
+              border: tab === 'payments' ? '1px solid #646cff' : 'none',
+              color: '#fff'
             }}
           >
             Pagos

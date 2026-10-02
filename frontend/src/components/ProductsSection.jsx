@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { logError } from '../services/errorLogger';
 import { apiClient } from '../services/apiClient';
 
+logError(new Error("Error de prueba"), { section: "ProductsSection" });
 /**
  * COMPONENTE: ProductsSection
  * 
