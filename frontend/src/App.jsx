@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { LoginSection } from './components/LoginSection';
 import { ProductsSection } from './components/ProductsSection';
 import { PaymentSection } from './components/PaymentSection';
+import BuggyWidget from './components/BuggyWidget';
+import { SafeSection } from './components/errors';
 
 function App() {
   const [tab, setTab] = useState('home');
 
   return (
     <div className="container">
-      <div style={{ textAlign: 'center', marginBottom: '2em' }}>
+         <div style={{ textAlign: 'center', marginBottom: '2em' }}>
         <h1>🛒 eCommerce - Manejo de Errores en Frontend</h1>
         <p style={{ color: '#aaa', marginTop: '0.5em' }}>
           Tu reto: Implementar la estrategia de manejo de errores en React
