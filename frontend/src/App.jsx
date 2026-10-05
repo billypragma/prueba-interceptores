@@ -9,6 +9,7 @@ import { SafeSection } from './components/errors';
 function App() {
   const [tab, setTab] = useState('home');
 
+
   return (
     <div className="container">
          <div style={{ textAlign: 'center', marginBottom: '2em' }}>
