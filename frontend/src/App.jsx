@@ -1,8 +1,9 @@
+// src/App.jsx  
+
 import { useState } from 'react';
 import { LoginSection } from './components/LoginSection';
 import { ProductsSection } from './components/ProductsSection';
 import { PaymentSection } from './components/PaymentSection';
-import BuggyWidget from './components/BuggyWidget';
 import { SafeSection } from './components/errors';
 
 function App() {
@@ -97,9 +98,22 @@ function App() {
           </div>
         )}
 
-        {tab === 'auth' && <LoginSection />}
-        {tab === 'products' && <ProductsSection />}
-        {tab === 'payments' && <PaymentSection />}
+        {tab === 'auth' && (
+          <SafeSection name="Autenticación">
+            <LoginSection />
+          </SafeSection>
+        )}
+        {tab === 'products' && (
+          <SafeSection name="Productos">
+            <ProductsSection />
+          </SafeSection>
+        ) }
+        {tab === 'payments' && (
+          <SafeSection name="Pagos">
+            <PaymentSection />
+          </SafeSection>
+
+        ) }
       </div>
     </div>
   );
