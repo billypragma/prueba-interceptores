@@ -1,46 +1,52 @@
 import { useState } from 'react';
+import { ErrorDisplay } from './ErrorDisplay';
+import { SuccessDisplay } from './SuccessDisplay';
 import { apiClient } from '../services/apiClient';
 
-/**
- * COMPONENTE: LoginSection
- * 
- * Tu tarea:
- * 1. Crear estados para: username, password, loading, error, success
- * 2. Crear función handleLogin que llama a apiClient.post('/auth/login', {...})
- * 3. Capturar errores en try/catch
- * 4. Mostrar errores al usuario (crear componente ErrorDisplay)
- * 5. Mostrar éxito (crear componente SuccessDisplay)
- * 
- * Recuerda:
- * - 401: Credenciales inválidas (error del cliente)
- * - 200: Login exitoso (éxito)
- * 
- * Estructura esperada del error:
- * {
- *   statusCode: 401,
- *   errorFamily: "4xx - Client Error",
- *   name: "AuthenticationException",
- *   message: "Credenciales inválidas"
- * }
- */
 export function LoginSection() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
-  // TODO: Agregaestados faltantes
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState(null);
-  // const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // TODO: Implementar lógica de login
-    // 1. Validar inputs
-    // 2. Mostrar loading
-    // 3. Llamar a apiClient.post()
-    // 4. En caso de éxito: guardar token, mostrar success
-    // 5. En caso de error: capturar y mostrar error
+
+    if (!username.trim() || !password.trim()) {
+      setError({
+        statusCode: 400,
+        errorFamily: '4xx - Client Error',
+        name: 'ValidationError',
+        message: 'Usuario y contraseña son requeridos.',
+        timestamp: new Date().toISOString()
+      });
+      setSuccess(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await apiClient.post('/auth/login', {
+        username,
+        password
+      });
+
+      localStorage.setItem('auth_token', result.data.token);
+      setSuccess({
+        statusCode: result.statusCode || 200,
+        message: result.message || 'Autenticación exitosa',
+        data: result.data
+      });
+      setPassword('');
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,6 +60,7 @@ export function LoginSection() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Usuario"
+            disabled={loading}
           />
         </div>
         <div>
@@ -63,18 +70,19 @@ export function LoginSection() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Contraseña"
+            disabled={loading}
           />
         </div>
-        <button type="submit">
-          Iniciar Sesión
+        <button type="submit" disabled={loading}>
+          {loading ? 'Iniciando...' : 'Iniciar Sesión'}
         </button>
         <small style={{ display: 'block', marginTop: '0.5em', color: '#888' }}>
           Prueba: admin / password123
         </small>
       </form>
 
-      {/* TODO: Mostrar error aquí (crear componente ErrorDisplay) */}
-      {/* TODO: Mostrar éxito aquí (crear componente SuccessDisplay) */}
+      {error && <ErrorDisplay error={error} onClose={() => setError(null)} />}
+      {success && <SuccessDisplay data={success} onClose={() => setSuccess(null)} />}
     </div>
   );
 }

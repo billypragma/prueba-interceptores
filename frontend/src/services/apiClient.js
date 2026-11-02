@@ -1,15 +1,23 @@
 const API_BASE_URL = 'http://localhost:3000/api';
 
-/**
- * Cliente HTTP básico para comunicación con el backend
- * 
- * TU TAREA: Agregar manejo de errores aquí
- * 
- * Considera:
- * - ¿Qué pasa si la respuesta no es OK (response.ok === false)?
- * - ¿Cómo capturar y procesar el error?
- * - ¿Qué información del error es útil para mostrar al usuario?
- */
+const normalizeApiError = (payload, fallbackMessage = 'Error inesperado') => {
+  const errorPayload = payload && typeof payload === 'object' ? payload : {};
+
+  return {
+    statusCode: errorPayload.statusCode || 0,
+    errorFamily: errorPayload.errorFamily || (
+      errorPayload.statusCode >= 500 ? '5xx - Server Error' :
+      errorPayload.statusCode ? '4xx - Client Error' : 'Network Error'
+    ),
+    name: errorPayload.name || 'ApiError',
+    message: errorPayload.message || fallbackMessage,
+    timestamp: errorPayload.timestamp || new Date().toISOString(),
+    path: errorPayload.path || null,
+    stack: errorPayload.stack || null,
+    details: errorPayload.details || null
+  };
+};
+
 export const apiClient = {
   async request(method, endpoint, data = null, headers = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
@@ -19,28 +27,49 @@ export const apiClient = {
       method,
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...headers
       }
     };
 
-    if (data) {
+    if (data !== null && data !== undefined && method.toUpperCase() !== 'GET') {
       config.body = JSON.stringify(data);
     }
 
     try {
       const response = await fetch(url, config);
-      const responseData = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      let responseData = null;
 
-      // TODO: Implementar manejo de errores
-      // Si response.ok es false, significa error HTTP
-      // Deberías procesar responseData y lanzar un error apropiado
-      
+      if (contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+
+      if (!response.ok) {
+        const normalizedError = normalizeApiError(
+          responseData,
+          `La solicitud a ${endpoint} falló con código ${response.status}`
+        );
+        throw normalizedError;
+      }
+
       return responseData;
     } catch (error) {
-      // TODO: Manejar errores de red y otros errores
+      if (error && typeof error === 'object' && 'statusCode' in error) {
+        throw error;
+      }
+
       console.error(`[API] ${method} ${endpoint}:`, error);
-      throw error;
+      throw normalizeApiError({
+        statusCode: 0,
+        errorFamily: 'Network Error',
+        name: 'NetworkError',
+        message: 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.',
+        path: endpoint,
+        timestamp: new Date().toISOString()
+      });
     }
   },
 

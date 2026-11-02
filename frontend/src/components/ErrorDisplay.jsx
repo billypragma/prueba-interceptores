@@ -1,56 +1,70 @@
 /**
- * COMPONENTE: ErrorDisplay
- * 
- * Tu tarea: Crear un componente que muestre errores HTTP de manera visual
- * 
- * Props que recibirá:
- * - error: Objeto con estructura {
- *     statusCode: 401,
- *     errorFamily: "4xx - Client Error",
- *     name: "AuthenticationException",
- *     message: "Credenciales inválidas",
- *     path: "/api/auth/login",
- *     timestamp: "2024..."
- *   }
- * - onClose: Función para cerrar/limpiar el error
- * 
- * Consideraciones:
- * 1. ¿Qué mostrar del error?
- * 2. ¿Cómo diferenciar visualmente por statusCode?
- * 3. ¿Cómo mostrar información técnica sin abrumar al usuario?
- * 4. ¿Permitir cerrar el mensaje de error?
- * 5. ¿Usar colores diferentes para 4xx y 5xx?
- * 
- * Estructura sugerida:
- * - Badge con statusCode
- * - Icono de error (❌)
- * - Mensaje principal (message)
- * - Detalles opcionales (name, path, timestamp)
- * - Botón para cerrar
+ * Muestra errores de la API de manera clara, con contexto y opción de cerrar.
  */
 export function ErrorDisplay({ error, onClose }) {
   if (!error) return null;
 
-  // TODO: Implementar componente
-  // Por ahora solo muestra un placeholder
+  const isServerError = Number(error.statusCode) >= 500;
+  const borderColor = isServerError ? '#f87171' : '#f59e0b';
+  const backgroundColor = isServerError ? '#3f1d1d' : '#3b2a1d';
+  const textColor = '#fef2f2';
+
+  const details = [
+    error.errorFamily && { label: 'Familia', value: error.errorFamily },
+    error.name && { label: 'Tipo', value: error.name },
+    error.path && { label: 'Ruta', value: error.path },
+    error.timestamp && { label: 'Hora', value: new Date(error.timestamp).toLocaleString() }
+  ].filter(Boolean);
+
   return (
-    <div style={{
-      border: '1px solid #cc0000',
-      borderRadius: '4px',
-      padding: '1em',
-      margin: '1em 0',
-      backgroundColor: '#4a1a1a',
-      color: '#ff6b6b'
-    }}>
-      <strong>❌ Error {error.statusCode}</strong>
-      <p>{error.message}</p>
-      {/* 
-        TODO: Mostrar más detalles
-        - error.errorFamily
-        - error.name
-        - error.path
-        - Botón onClose si existe
-      */}
+    <div
+      role="alert"
+      style={{
+        border: `1px solid ${borderColor}`,
+        borderRadius: '8px',
+        padding: '1rem',
+        margin: '1rem 0',
+        backgroundColor,
+        color: textColor,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.18)'
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '1.2rem' }}>❌</span>
+            <strong style={{ fontSize: '1rem' }}>Error {error.statusCode || 'HTTP'}</strong>
+          </div>
+          <p style={{ margin: '0.25rem 0', fontWeight: 600, fontSize: '1rem' }}>{error.message}</p>
+        </div>
+
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.3)',
+              color: '#fff',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              padding: '0.35rem 0.6rem'
+            }}
+          >
+            Cerrar
+          </button>
+        )}
+      </div>
+
+      {details.length > 0 && (
+        <ul style={{ margin: '0.75rem 0 0', paddingLeft: '1.1rem', fontSize: '0.88rem', opacity: 0.95 }}>
+          {details.map(({ label, value }) => (
+            <li key={label}>
+              <strong>{label}:</strong> {value}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

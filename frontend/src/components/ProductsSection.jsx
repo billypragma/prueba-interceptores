@@ -1,6 +1,11 @@
-import { useState } from 'react';
-import { logError } from '../services/errorLogger';
+// ProductsSection.jsx
+
+import { useEffect, useState } from 'react';
+import { ErrorDisplay } from './ErrorDisplay';
+import { SuccessDisplay } from './SuccessDisplay';
 import { apiClient } from '../services/apiClient';
+
+
 
 /**
  * COMPONENTE: ProductsSection
@@ -26,45 +31,100 @@ import { apiClient } from '../services/apiClient';
  * }
  */
 export function ProductsSection() {
+  const [products, setProducts] = useState([]);
   const [productId, setProductId] = useState('');
-  
-  // TODO: Agregar estados faltantes
-  // const [error, setError] = useState(null);
-  // const [success, setSuccess] = useState(null);
-  // const [loading, setLoading] = useState(false);
-  // const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await apiClient.get('/products');
+      setProducts(result.data || []);
+      setSuccess({
+        statusCode: result.statusCode || 200,
+        message: result.message || 'Productos cargados correctamente',
+        data: result.data || []
+      });
+    } catch (err) {
+      setProducts([]);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleGetProducts = async () => {
-    // TODO: Implementar
-    // 1. Mostrar loading
-    // 2. Llamar apiClient.get('/products')
-    // 3. Guardar en estado products
-    // 4. Capturar errores
+    await fetchProducts();
   };
 
   const handleGetProduct = async (e) => {
     e.preventDefault();
-    
-    // TODO: Implementar
-    // 1. Validar que productId no esté vacío
-    // 2. Mostrar loading
-    // 3. Llamar apiClient.get(`/products/${productId}`)
-    // 4. Mostrar éxito con datos del producto
-    // 5. Capturar error 404
+
+    if (!productId.trim()) {
+      setError({
+        statusCode: 400,
+        errorFamily: '4xx - Client Error',
+        name: 'ValidationError',
+        message: 'Debes ingresar un ID de producto.',
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await apiClient.get(`/products/${productId}`);
+      setProducts([result.data]);
+      setSuccess({
+        statusCode: result.statusCode || 200,
+        message: result.message || `Producto ${productId} encontrado`,
+        data: result.data
+      });
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCheckStock = async (id) => {
-    // TODO: Implementar
-    // Llamar a apiClient.get(`/products/${id}/check-stock`)
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await apiClient.get(`/products/${id}/check-stock`);
+      setSuccess({
+        statusCode: result.statusCode || 200,
+        message: result.message || 'Estado de stock consultado',
+        data: result.data
+      });
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="card">
       <h2>📦 Productos</h2>
-      
+
       <div>
-        <button onClick={handleGetProducts}>
-          Listar Todos
+        <button onClick={handleGetProducts} disabled={loading}>
+          {loading ? 'Cargando...' : 'Listar Todos'}
         </button>
       </div>
 
@@ -75,15 +135,44 @@ export function ProductsSection() {
           onChange={(e) => setProductId(e.target.value)}
           placeholder="ID del producto"
           min="1"
+          disabled={loading}
         />
-        <button type="submit">
+        <button type="submit" disabled={loading}>
           Buscar por ID
         </button>
       </form>
 
-      {/* TODO: Mostrar tabla de productos */}
-      {/* TODO: Mostrar errores */}
-      {/* TODO: Mostrar éxito */}
+      {error && <ErrorDisplay error={error} onClose={() => setError(null)} />}
+      {success && <SuccessDisplay data={success} onClose={() => setSuccess(null)} />}
+
+      {products.length > 0 && (
+        <table style={{ width: '100%', marginTop: '1rem', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #444' }}>ID</th>
+              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #444' }}>Nombre</th>
+              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #444' }}>Precio</th>
+              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #444' }}>Stock</th>
+              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #444' }}>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id}>
+                <td style={{ padding: '0.5rem', borderBottom: '1px solid #2a2a2a' }}>{product.id}</td>
+                <td style={{ padding: '0.5rem', borderBottom: '1px solid #2a2a2a' }}>{product.name}</td>
+                <td style={{ padding: '0.5rem', borderBottom: '1px solid #2a2a2a' }}>${Number(product.price).toFixed(2)}</td>
+                <td style={{ padding: '0.5rem', borderBottom: '1px solid #2a2a2a' }}>{product.stock}</td>
+                <td style={{ padding: '0.5rem', borderBottom: '1px solid #2a2a2a' }}>
+                  <button type="button" onClick={() => handleCheckStock(product.id)} disabled={loading}>
+                    Ver stock
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

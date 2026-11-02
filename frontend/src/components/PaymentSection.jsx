@@ -1,53 +1,104 @@
 import { useState } from 'react';
+import { ErrorDisplay } from './ErrorDisplay';
+import { SuccessDisplay } from './SuccessDisplay';
 import { apiClient } from '../services/apiClient';
 
-/**
- * COMPONENTE: PaymentSection
- * 
- * Tu tarea:
- * 1. Crear estados para: amount, cardNumber, expiryDate, cvv, loading, error, success
- * 2. Crear función handleValidateCard para validar datos
- * 3. Crear función handleProcessPayment para procesar el pago
- * 4. Capturar errores 402 (Payment Required)
- * 5. Mostrar mensajes de error y éxito
- * 
- * Errores esperados:
- * - 401: Sin autenticación / token inválido
- * - 402: Tarjeta rechazada, fondos insuficientes, datos inválidos
- * - 200: Pago procesado exitosamente
- * 
- * Nota: Los datos de prueba deben venir de tokens obtenidos en login
- */
 export function PaymentSection() {
   const [amount, setAmount] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
-  
-  // TODO: Agregar estados faltantes
-  // const [error, setError] = useState(null);
-  // const [success, setSuccess] = useState(null);
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const handleValidateCard = async (e) => {
     e.preventDefault();
-    
-    // TODO: Implementar
-    // 1. Mostrar loading
-    // 2. Llamar apiClient.post('/payments/validate', {...})
-    // 3. Mostrar éxito si es válido
-    // 4. Capturar error 402 si es inválido
+
+    if (!cardNumber.trim() || !expiryDate.trim() || !cvv.trim()) {
+      setError({
+        statusCode: 400,
+        errorFamily: '4xx - Client Error',
+        name: 'ValidationError',
+        message: 'Debes completar número, expiración y CVV.',
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await apiClient.post('/payments/validate', {
+        cardNumber,
+        expiryDate,
+        cvv
+      });
+
+      setSuccess({
+        statusCode: result.statusCode || 200,
+        message: result.message || 'Datos de tarjeta válidos',
+        data: result.data
+      });
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleProcessPayment = async (e) => {
     e.preventDefault();
-    
-    // TODO: Implementar
-    // 1. Obtener token de localStorage
-    // 2. Validar que tengamos token (si no, error 401)
-    // 3. Mostrar loading
-    // 4. Llamar apiClient.post('/payments/process', {...})
-    // 5. Mostrar éxito o error
+
+    const token = localStorage.getItem('auth_token');
+
+    if (!token) {
+      setError({
+        statusCode: 401,
+        errorFamily: '4xx - Client Error',
+        name: 'AuthenticationException',
+        message: 'Necesitas iniciar sesión antes de procesar un pago.',
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
+
+    if (!amount || Number(amount) <= 0) {
+      setError({
+        statusCode: 402,
+        errorFamily: '4xx - Client Error',
+        name: 'PaymentException',
+        message: 'El monto del pago debe ser mayor a cero.',
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await apiClient.post('/payments/process', {
+        amount: Number(amount),
+        cardNumber,
+        expiryDate,
+        cvv,
+        token
+      });
+
+      setSuccess({
+        statusCode: result.statusCode || 200,
+        message: result.message || 'Pago procesado exitosamente',
+        data: result.data
+      });
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,6 +115,7 @@ export function PaymentSection() {
             onChange={(e) => setCardNumber(e.target.value)}
             placeholder="16 dígitos"
             maxLength="16"
+            disabled={loading}
           />
         </div>
         <div>
@@ -73,6 +125,7 @@ export function PaymentSection() {
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
             placeholder="MM/YY"
+            disabled={loading}
           />
         </div>
         <div>
@@ -83,10 +136,11 @@ export function PaymentSection() {
             onChange={(e) => setCvv(e.target.value)}
             placeholder="3 dígitos"
             maxLength="3"
+            disabled={loading}
           />
         </div>
-        <button type="submit">
-          Validar Datos
+        <button type="submit" disabled={loading}>
+          {loading ? 'Procesando...' : 'Validar Datos'}
         </button>
       </form>
 
@@ -101,9 +155,10 @@ export function PaymentSection() {
             placeholder="Monto"
             step="0.01"
             min="0"
+            disabled={loading}
           />
         </div>
-        <button type="submit">
+        <button type="submit" disabled={loading}>
           Procesar Pago
         </button>
         <small style={{ display: 'block', marginTop: '0.5em', color: '#888' }}>
@@ -111,8 +166,8 @@ export function PaymentSection() {
         </small>
       </form>
 
-      {/* TODO: Mostrar errores */}
-      {/* TODO: Mostrar éxito */}
+      {error && <ErrorDisplay error={error} onClose={() => setError(null)} />}
+      {success && <SuccessDisplay data={success} onClose={() => setSuccess(null)} />}
     </div>
   );
 }

@@ -1,52 +1,81 @@
 /**
- * COMPONENTE: SuccessDisplay
- * 
- * Tu tarea: Crear un componente que muestre respuestas exitosas (2xx)
- * 
- * Props que recibirá:
- * - data: Objeto con estructura {
- *     statusCode: 200,
- *     message: "Autenticación exitosa",
- *     data: { ... }  // información específica
- *   }
- * - onClose: Función para cerrar/limpiar el mensaje
- * 
- * Consideraciones:
- * 1. ¿Qué mostrar del mensaje?
- * 2. ¿Cómo mostrar los datos sin hacer la interfaz confusa?
- * 3. ¿Usar color verde para diferenciar de errores?
- * 4. ¿Expandible con details/summary para ver datos?
- * 5. ¿Auto-cerrar después de 3-5 segundos?
- * 
- * Estructura sugerida:
- * - Icono de éxito (✓)
- * - Mensaje principal (message)
- * - Badge verde con "200 OK"
- * - Detalles del dato (en formato JSON o tabla)
- * - Botón para cerrar
+ * Muestra respuestas exitosas con el código HTTP y detalles opcionales.
  */
 export function SuccessDisplay({ data, onClose }) {
   if (!data) return null;
 
-  // TODO: Implementar componente
-  // Por ahora solo muestra un placeholder
+  const payload = data?.data && typeof data.data === 'object' ? data.data : null;
+
   return (
-    <div style={{
-      border: '1px solid #00cc00',
-      borderRadius: '4px',
-      padding: '1em',
-      margin: '1em 0',
-      backgroundColor: '#1a4a1a',
-      color: '#6bff6b'
-    }}>
-      <strong>✓ Éxito</strong>
-      <p>{data.message}</p>
-      {/* 
-        TODO: Mostrar datos
-        - data.statusCode con badge
-        - data.data con expand/collapse
-        - Botón onClose si existe
-      */}
+    <div
+      role="status"
+      style={{
+        border: '1px solid #4ade80',
+        borderRadius: '8px',
+        padding: '1rem',
+        margin: '1rem 0',
+        backgroundColor: '#183a2a',
+        color: '#dcfce7',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '1.2rem' }}>✅</span>
+            <strong style={{ fontSize: '1rem' }}>Éxito</strong>
+            <span
+              style={{
+                background: '#14532d',
+                color: '#dcfce7',
+                borderRadius: '999px',
+                padding: '0.15rem 0.5rem',
+                fontSize: '0.8rem',
+                fontWeight: 700
+              }}
+            >
+              {data.statusCode || 200} OK
+            </span>
+          </div>
+          <p style={{ margin: '0.25rem 0', fontWeight: 600 }}>{data.message}</p>
+        </div>
+
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.3)',
+              color: '#fff',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              padding: '0.35rem 0.6rem'
+            }}
+          >
+            Cerrar
+          </button>
+        )}
+      </div>
+
+      {payload && (
+        <details style={{ marginTop: '0.75rem' }} open>
+          <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Ver detalles</summary>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              background: 'rgba(0,0,0,0.18)',
+              borderRadius: '6px',
+              padding: '0.75rem',
+              marginTop: '0.5rem',
+              fontSize: '0.8rem'
+            }}
+          >
+            {JSON.stringify(payload, null, 2)}
+          </pre>
+        </details>
+      )}
     </div>
   );
 }
